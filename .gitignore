@@ -1,0 +1,4 @@
+board+tiles/
+evaluation/
+train/
+__pycache__/
