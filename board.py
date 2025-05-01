@@ -53,35 +53,52 @@ class Tile:
         self.pieces: List[Piece] = []
     
     def __str__(self):
+        if self.bonus > 0:
+            return f"+{self.bonus}"
+        elif self.piece is None:
+            return "EMPTY"  # Default representation for an empty tile
         return f"{self.piece.shape}{self.piece.color}"
     
 
 class Board:
     def __init__(self):
         # Initialize a 16x16 grid with labeled tiles (A1 to P16)
-        self.grid: Dict[str, Tile] = {}
+        # and populate with tiles with default values
+        self.tile_list: Dict[str, Tile] = {}
+        self.grid_matrix: List[List[Tile]] = [[None for _ in range(16)] for _ in range(16)]
         for i in range(16):  # Rows A to P
-            for j in range(16):  # Columns 1 to 16
-                label = f"{chr(65 + i)}{j + 1}"  # Generate labels like A1, B1, ..., P16
-                self.grid[label] = Tile()
+            for j in range(16):
+                label = f"{chr(65 + i)}{j + 1}"
+                self.tile_list[label] = Tile()
+                self.grid_matrix[i][j] = self.tile_list[label]                        
     
-    def place_tile(self, position: str, tile: Tile):
-        # create self.grid as a matrix of 16x16
-        if position in self.grid:
-            self.grid[position] = tile
+    def place_piece(self, position: str, piece: Piece):
+        """
+        Place a piece on the board at the specified position.
+        :param position: The position on the board (e.g., "A1").
+        :param piece: The piece to place on the board.
+        """
+        if position in self.tile_list:
+            self.tile_list[position].piece = piece
+            self.tile_list[position].image_patch = piece.image_patch
+            self.tile_list[position].pieces.append(piece)
         else:
             raise ValueError(f"Invalid position: {position}")
         
-    def display_board(self):
+    def display_board(self, show_position_tags: bool = True):
         """
-        Display the board in a grid-like format for debugging purposes.
+        Display the board using self.tile_list in a grid-like format for debugging purposes.
         """
-        for i in range(16):  # Rows A to P
+        for i in range(16):
             row = []
-            for j in range(16):  # Columns 1 to 16
-                label = f"{chr(65 + i)}{j + 1}"
-                row.append(str(self.grid[label]))
-            print(" ".join(row))
+            for j in range(16):
+                if show_position_tags:
+                    label = f"{chr(65 + i)}{j + 1}"
+                    row.append(label + ' ' + str(self.tile_list[label]))
+                else:
+                    label = f"{chr(65 + i)}{j + 1}"  # Construct the key (e.g., "A1", "B2")
+                    row.append(str(self.tile_list[label]))  # Get the tile representation
+            print(" | ".join(row))
 
     def get_lines(self, new_position: list[str]):
         """
@@ -93,7 +110,9 @@ class Board:
         pass
 
     # def compute_score(self, positions: List[str]) -> int:
+        
 
 
 board = Board()
-board.display_board()
+# board.display_board(show_position_tags=False)
+print(board.grid_matrix[0][0])
