@@ -119,10 +119,10 @@ def align_board(template_image_path: str, query_image_path: str, output_size=(80
     # if show_details:
     #     matches = sorted(all_matches, key=lambda x: x[0].distance)
     #     matches = matches[:20]
-    image_output = cv2.drawMatchesKnn(template, keypoints_template,
-                                        query, keypoints_query,
-                                        all_matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-    ShowImage(image_output, 'matches')
+    # image_output = cv2.drawMatchesKnn(template, keypoints_template,
+    #                                     query, keypoints_query,
+    #                                     all_matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+    # ShowImage(image_output, 'matches')
 
 
     # Notice the order: source = template, destination = query
