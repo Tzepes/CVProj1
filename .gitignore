@@ -4,3 +4,6 @@ train/
 __pycache__/
 Lab2-Solution.ipynb
 Lab4 - Solution.ipynb
+shape_dataset/
+tiles_patches/
+tiles_patches_padded/

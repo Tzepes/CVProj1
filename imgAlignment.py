@@ -97,7 +97,7 @@ def generate_homography(all_matches: list[cv2.DMatch], keypoints_source: list[cv
     return H
 
 
-def align_board(template_image_path: str, query_image_path: str, output_size=(800,800), show_details=False, use_sift=False) -> tuple:
+def align_board(template_image_path: str, query_image_path: str, output_size=(800,800), show_details=False, use_sift=False, homography_threshold=0.75) -> tuple:
     """
     Align the query (skewed) board image to match the template (perfect board).
     """
@@ -119,14 +119,14 @@ def align_board(template_image_path: str, query_image_path: str, output_size=(80
     # if show_details:
     #     matches = sorted(all_matches, key=lambda x: x[0].distance)
     #     matches = matches[:20]
-    # image_output = cv2.drawMatchesKnn(template, keypoints_template,
-    #                                     query, keypoints_query,
-    #                                     all_matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-    # ShowImage(image_output, 'matches')
+    image_matches = cv2.drawMatchesKnn(template, keypoints_template,
+                                        query, keypoints_query,
+                                        all_matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+    # ShowImage(image_matches, 'matches')
 
 
     # Notice the order: source = template, destination = query
-    H = generate_homography(all_matches, keypoints_template, keypoints_query, ratio=0.75, ransac_rep=4.0)
+    H = generate_homography(all_matches, keypoints_template, keypoints_query, ratio=homography_threshold, ransac_rep=4.0)
     H = np.linalg.inv(H)  # Invert the homography matrix to warp the query image to the template
 
     if H is None:
@@ -135,4 +135,4 @@ def align_board(template_image_path: str, query_image_path: str, output_size=(80
     shape = (template.shape[1], template.shape[0])
     result = cv2.warpPerspective(query, H, shape)
     result = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
-    return template, query, result
+    return template, query, result, image_matches
