@@ -50,11 +50,6 @@ def match_features(features_source, features_dest) -> list[list[cv2.DMatch]]:
 def generate_homography(all_matches: list[cv2.DMatch], keypoints_source: list[cv2.KeyPoint], keypoints_dest: list[cv2.KeyPoint],
                         ratio: float = 0.6, ransac_rep: float = 3.0, max_matches: int = 20):
     """
-    TODO:
-    1. Find the matchings that pass the Lowe's ratio test (ratio parameter).
-    2. Get the coordinates of the keypoints from the source image.
-    3. Get the coordinates of the keypoints from the destination image.
-    4. Obtain the Homagraphy. (https://docs.opencv.org/master/d1/de0/tutorial_py_feature_homography.html)
     :param all_matches [DMatch]
     :param keypoints_source [cv.Point]
     :param ratio - Lowe's ratio test (the ratio 1st neighbour distance / 2nd neighbour distance)
@@ -71,7 +66,6 @@ def generate_homography(all_matches: list[cv2.DMatch], keypoints_source: list[cv
     
     class KeyPoint:
         pt - The x, y coordinates of a point.
-    
     """
     if not all_matches:
         return None
@@ -101,6 +95,7 @@ def align_board(template_image_path: str, query_image_path: str, output_size=(80
     """
     Align the query (skewed) board image to match the template (perfect board).
     """
+    
     template = cv2.imread(template_image_path)
     query = cv2.imread(query_image_path)
     
@@ -125,7 +120,7 @@ def align_board(template_image_path: str, query_image_path: str, output_size=(80
     # ShowImage(image_matches, 'matches')
 
 
-    # Notice the order: source = template, destination = query
+    # # Notice the order: source = template, destination = query
     H = generate_homography(all_matches, keypoints_template, keypoints_query, ratio=homography_threshold, ransac_rep=4.0)
     H = np.linalg.inv(H)  # Invert the homography matrix to warp the query image to the template
 
