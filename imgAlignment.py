@@ -131,3 +131,91 @@ def align_board(template_image_path: str, query_image_path: str, output_size=(80
     result = cv2.warpPerspective(query, H, shape)
     result = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
     return template, query, result, image_matches
+
+
+
+def extract_board_by_contour(image_path, output_size=(800, 800), debug=False):
+    warped = None
+    image = cv2.imread(image_path)
+    orig = image.copy()
+    img_area = image.shape[0] * image.shape[1]
+    
+    # Convert to grayscale and blur
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
+    gray = cv2.bilateralFilter(gray, d=11, sigmaColor=17, sigmaSpace=17)
+
+    # Canny edge detection
+    edged = cv2.Canny(gray, 1, 10, apertureSize=3)
+    edged = cv2.dilate(edged, None, iterations=1)
+    
+    #show edged image
+    # plt.imshow(edged, cmap='gray')
+    # plt.axis('off')
+
+    # Find contours
+    contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)[:4]
+    
+    #show contours
+    debug_img = image.copy()
+    for i, contour in enumerate(contours):
+        cv2.drawContours(debug_img, [contour], -1, (0, 255, 0), 3)  # Draw each contour in green
+
+    # Plot the image with the contours
+    # plt.figure(figsize=(8, 8))
+    # plt.imshow(cv2.cvtColor(debug_img, cv2.COLOR_BGR2RGB))
+    # plt.title(f"{4} Largest Contours")
+    # plt.axis("off")
+    # plt.show()
+
+    board_contour = None
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area < 0.1 * img_area:  # skip tiny contours
+            continue
+        peri = cv2.arcLength(cnt, True)
+        approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+        if len(approx) == 4:
+            # Check if it's rectangular-ish
+            x, y, w, h = cv2.boundingRect(approx)
+            aspect_ratio = w / float(h)
+            if 0.8 < aspect_ratio < 1.2:  # roughly square/rectangular
+                board_contour = approx
+                break
+
+    if board_contour is None:
+        raise RuntimeError("Could not find a valid board contour.")
+    
+    # Draw the detected contour
+    debug_img = cv2.drawContours(orig.copy(), [board_contour], -1, (0,255,0), 5)
+    # plt.subplot(1,2,2)
+    # plt.title("Detected Contour")
+    # plt.imshow(cv2.cvtColor(debug_img, cv2.COLOR_BGR2RGB))
+    # plt.show()
+
+    # Order points
+    def order_points(pts):
+        pts = pts.reshape(4, 2)
+        rect = np.zeros((4, 2), dtype="float32")
+        s = pts.sum(axis=1)
+        rect[0] = pts[np.argmin(s)]
+        rect[2] = pts[np.argmax(s)]
+        diff = np.diff(pts, axis=1)
+        rect[1] = pts[np.argmin(diff)]
+        rect[3] = pts[np.argmax(diff)]
+        return rect
+
+    rect = order_points(board_contour)
+    dst = np.array([
+        [0, 0],
+        [output_size[0] - 1, 0],
+        [output_size[0] - 1, output_size[1] - 1],
+        [0, output_size[1] - 1]
+    ], dtype="float32")
+
+    # Warp the image
+    M = cv2.getPerspectiveTransform(rect, dst)
+    warped = cv2.warpPerspective(orig, M, output_size)
+
+    return warped
