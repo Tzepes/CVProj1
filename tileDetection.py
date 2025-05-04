@@ -14,7 +14,7 @@ def is_tile_present(cell_img, threshold=40, min_foreground_ratio=0.05):
     ⚙️ Tuning Tips
     Parameter	Description	Typical Value
     threshold	Controls what counts as “dark enough” to be tile	30–60
-    min_foreground_ratio	% of pixels that must be non-background	0.03–0.07
+    min_foreground_ratio	% of pixels that must be non-background	0.25–0.35
     """
     gray = cv2.cvtColor(cell_img, cv2.COLOR_BGR2GRAY)
     
