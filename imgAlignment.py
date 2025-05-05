@@ -3,7 +3,7 @@ import numpy as np
 from typing import List, Tuple
 from scipy.spatial import distance as dist
 from utilities import ShowImage, ShowKeypoints
-
+import matplotlib.pyplot as plt
 
 def get_keypoints_and_features_SIFT(image, show_keypoints=False) -> tuple:  
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
@@ -91,12 +91,12 @@ def generate_homography(all_matches: list[cv2.DMatch], keypoints_source: list[cv
     return H
 
 
-def align_board(template_image_path: str, query_image_path: str, output_size=(800,800), show_details=False, use_sift=False, homography_threshold=0.75) -> tuple:
+def align_board_sift_orb(template_img: np.array, query_image_path: str, output_size=(800,800), show_details=False, use_sift=False, homography_threshold=0.75) -> tuple:
     """
     Align the query (skewed) board image to match the template (perfect board).
     """
     
-    template = cv2.imread(template_image_path)
+    template = template_img
     query = cv2.imread(query_image_path)
     
     template = cv2.cvtColor(template, cv2.COLOR_BGR2HSV)
@@ -142,7 +142,6 @@ def extract_board_by_contour(image_path, output_size=(800, 800), debug=False):
     
     # Convert to grayscale and blur
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (5, 5), 0)
     gray = cv2.bilateralFilter(gray, d=11, sigmaColor=17, sigmaSpace=17)
 
     # Canny edge detection
@@ -150,8 +149,8 @@ def extract_board_by_contour(image_path, output_size=(800, 800), debug=False):
     edged = cv2.dilate(edged, None, iterations=1)
     
     #show edged image
-    # plt.imshow(edged, cmap='gray')
-    # plt.axis('off')
+    plt.imshow(edged, cmap='gray')
+    plt.axis('off')
 
     # Find contours
     contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -163,11 +162,11 @@ def extract_board_by_contour(image_path, output_size=(800, 800), debug=False):
         cv2.drawContours(debug_img, [contour], -1, (0, 255, 0), 3)  # Draw each contour in green
 
     # Plot the image with the contours
-    # plt.figure(figsize=(8, 8))
-    # plt.imshow(cv2.cvtColor(debug_img, cv2.COLOR_BGR2RGB))
-    # plt.title(f"{4} Largest Contours")
-    # plt.axis("off")
-    # plt.show()
+    plt.figure(figsize=(8, 8))
+    plt.imshow(cv2.cvtColor(debug_img, cv2.COLOR_BGR2RGB))
+    plt.title(f"{4} Largest Contours")
+    plt.axis("off")
+    plt.show()
 
     board_contour = None
     for cnt in contours:
