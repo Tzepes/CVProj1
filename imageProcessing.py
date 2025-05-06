@@ -122,7 +122,7 @@ def split_board_into_cells(warped_img, grid_X_size=16, padding=0):
             
             # TODO: Assign the cells to the defined class inside board.py
             cell_img = warped_img[y1:y2, x1:x2]
-            label = f"{chr(65 + i)}{j + 1}"  # e.g., A1, B1, ..., P16
+            label = f"{i+1}{chr(65 + j)}"  # e.g., A1, B1, ..., P16
             cells[label] = cell_img
             
     return cells
