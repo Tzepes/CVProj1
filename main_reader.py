@@ -48,21 +48,28 @@ already_played_moves = {
 output_dir = "moves_output"
 os.makedirs(output_dir, exist_ok=True)    
 
-move_count = 0
-
 for img in image_list:
-    match = re.search(r'/(?P<number>\d+)_', img) 
-    img_num = 0
-    if match:
-        img_num = match.group('number')
-        #set to int
-        img_num = int(img_num)
+    move_count = "00"
     
+    move_count_match = re.search(r'_(\d+)', os.path.basename(img))
+    if move_count_match:
+        move_count = move_count_match.group(1)
+        
+    match = re.search(r'(\d+)_', os.path.basename(img))
+    img_num = 1
+    if match:
+        group_num = int(match.group(1))
+    
+    template_img = os.path.join(os.path.dirname(img), f"{group_num}_00.jpg")
     print(f"Processing image: {img}")
     
-    warped_img = warp_template(image_list[0])
+    warped_img = warp_template(template_img)
+    print("Template image: ", template_img)
     
     aligned_img = align_board(warped_img, img, output_size=(800, 800), show_details=False , use_sift=True, homography_threshold=0.85)
+    
+    # if aligned_img is None:
+    #     continue
 
     detection_grid, cells_grid = split_board(aligned_img, padding_cell=0, padding_detection=-0.15)
     
@@ -96,7 +103,8 @@ for img in image_list:
             new_positions['positions'].append(tile['label'])
             new_positions['tiles'].append(Tile(Shape(tile['shape']), Color(tile['color'])))
     
-    if move_count == 0:
+    if move_count == "00":
+        board.reset_bonus_configuration() # THIS IS NOT IN MY FINAL SOLUTION
         board.set_board_config(set(already_played_moves['positions']))
     move = Move(new_positions['positions'], new_positions['tiles'])
     game.apply_move(move)
@@ -107,9 +115,9 @@ for img in image_list:
     print("Positions:", move.positions)
     print("Score:", move.score)
 
-    if move_count > 0:
+    if move_count != "00":
         # Save the move to a file
-        filename = os.path.join(output_dir, f"1_{move_count:02d}.txt")
+        filename = os.path.join(output_dir, f"{group_num}_{move_count}.txt")
         
         # Prepare the content for the file
         move_lines = [f"{pos} {tile}" for pos, tile in zip(move.positions, move.tiles)]
@@ -123,4 +131,3 @@ for img in image_list:
     game.moves.pop()
     new_positions['positions'] = []
     new_positions['tiles'] = []
-    move_count += 1

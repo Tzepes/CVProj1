@@ -56,6 +56,9 @@ class Board:
         self.grid: Dict[str, Tile] = {} # e.g., {'A1': Tile(...), 'B3': Tile(...)}
         self.bonus_squares: Dict[str, int] = {} #depending on setup (this might be invluenced by what is red from the imabe by CV)
         
+    def reset_bonus_configuration(self):
+        self.bonus_squares.clear()
+        
     def place_tile(self, position: str, tile: Tile):
         self.grid[position] = tile 
     

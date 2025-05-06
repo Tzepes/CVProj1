@@ -37,13 +37,16 @@ def align_board(wrp_tmp_path, query_img, output_size=(800, 800), show_details=Fa
     Returns:
         aligned_img (numpy.ndarray): Aligned image.
     """
+    aligned_img = None
     try:
         # Attempt to extract the board using contours
         aligned_img = extract_board_by_contour(query_img, output_size, debug=True)
     except Exception as e:
         print(f"Contour extraction failed: {e}")
-        tpl, qry, aligned_img, image_matches = align_board_sift_orb(wrp_tmp_path, query_img, output_size=(800,800), show_details=show_details , use_sift=use_sift, homography_threshold=homography_threshold)
-
+        try:
+            tpl, qry, aligned_img, image_matches = align_board_sift_orb(wrp_tmp_path, query_img, output_size=(800,800), show_details=show_details , use_sift=use_sift, homography_threshold=homography_threshold)
+        except Exception as e:
+            print(F"Sift alignment failed: {e}")
     # Read template and query images
     template_img_array = wrp_tmp_path  # Read the template image
 
@@ -52,6 +55,7 @@ def align_board(wrp_tmp_path, query_img, output_size=(800, 800), show_details=Fa
         raise FileNotFoundError(f"Query image not found at path: {query_img}")
     
     return aligned_img
+
 def split_board(warped, padding_cell=0, padding_detection=-0.15):
     """
     Splits the warped board into cells and detection grid.
