@@ -3,7 +3,6 @@ import numpy as np
 from typing import List, Tuple
 from scipy.spatial import distance as dist
 from utilities import ShowImage, ShowKeypoints
-import matplotlib.pyplot as plt
 
 def get_keypoints_and_features_SIFT(image, show_keypoints=False) -> tuple:  
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
@@ -12,9 +11,9 @@ def get_keypoints_and_features_SIFT(image, show_keypoints=False) -> tuple:
     keypoints = sift.detect(gray_image, None)
     keypoints, features = sift.compute(gray_image, keypoints) 
     
-    if show_keypoints:
-        ShowKeypoints(image, keypoints, title="Keypoints SIFT")
-        ShowImage(image, "Keypoints SIFT")
+    # if show_keypoints:
+    #     ShowKeypoints(image, keypoints, title="Keypoints SIFT")
+    #     ShowImage(image, "Keypoints SIFT")
         
     return keypoints, features
 
@@ -147,10 +146,6 @@ def extract_board_by_contour(image_path, output_size=(800, 800), debug=False):
     # Canny edge detection
     edged = cv2.Canny(gray, 1, 10, apertureSize=3)
     edged = cv2.dilate(edged, None, iterations=1)
-    
-    #show edged image
-    plt.imshow(edged, cmap='gray')
-    plt.axis('off')
 
     # Find contours
     contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -162,11 +157,6 @@ def extract_board_by_contour(image_path, output_size=(800, 800), debug=False):
         cv2.drawContours(debug_img, [contour], -1, (0, 255, 0), 3)  # Draw each contour in green
 
     # Plot the image with the contours
-    plt.figure(figsize=(8, 8))
-    plt.imshow(cv2.cvtColor(debug_img, cv2.COLOR_BGR2RGB))
-    plt.title(f"{4} Largest Contours")
-    plt.axis("off")
-    plt.show()
 
     board_contour = None
     for cnt in contours:
@@ -188,10 +178,6 @@ def extract_board_by_contour(image_path, output_size=(800, 800), debug=False):
     
     # Draw the detected contour
     debug_img = cv2.drawContours(orig.copy(), [board_contour], -1, (0,255,0), 5)
-    # plt.subplot(1,2,2)
-    # plt.title("Detected Contour")
-    # plt.imshow(cv2.cvtColor(debug_img, cv2.COLOR_BGR2RGB))
-    # plt.show()
 
     # Order points
     def order_points(pts):

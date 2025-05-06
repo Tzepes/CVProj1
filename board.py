@@ -253,29 +253,3 @@ class Game:
         # Switch to the other player
         self.switch_player()
             
-            
-            
-            
-# game = Game()
-
-# board = Board()
-# print(board.compute_bonus_1_from_diagonal('7B', '2G'))
-
-# move1 = Move(
-#     positions=["5E", "5F", "5G"],  # Assume horizontal
-#     tiles=[
-#         Tile(Shape.CIRCLE, Color.RED),
-#         Tile(Shape.CLOVER, Color.RED),
-#         Tile(Shape.DIAMOND, Color.RED),
-#     ]
-# )
-# game.apply_move(move1)
-# print(f"Player 1 Score: {game.scores}")
-
-# move2 = Move(["6E", "6F", "6G"], [
-#     Tile(Shape.CIRCLE, Color.BLUE),
-#     Tile(Shape.CLOVER, Color.BLUE),
-#     Tile(Shape.DIAMOND, Color.BLUE),
-# ])
-# game.apply_move(move2)
-# print(f"Player 2 Score: {game.scores}")

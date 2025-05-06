@@ -46,11 +46,6 @@ def detect_board_and_warp(image, output_size=(800, 800)):
     # img = cv2.resize(img, (1000, 1000))  # scale for consistency
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    #plot grayscaled image
-    # plt.imshow(gray, cmap='gray')
-    # plt.axis('off')
-    # plt.show()
-    
     edges = cv2.Canny(gray, 50, 150, apertureSize=3) # the parameters are: 
                                                      # Lowthreshold(which is the lower bound for the hysteresis thresholding), 
                                                      # Highthreshold(which is the upper bound for the hysteresis thresholding), 
